@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataFileTool", "DataFileTool\DataFileTool.csproj", "{E5F6990D-CB84-4D76-977B-852BA4DC8CC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataFileTool", "DataFileTool\DataFileTool.csproj", "{E5F6990D-CB84-4D76-977B-852BA4DC8CC9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E776520-A875-414E-8F7C-C7D9E50F0303}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
