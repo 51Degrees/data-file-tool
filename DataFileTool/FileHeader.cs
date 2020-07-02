@@ -53,12 +53,17 @@ namespace DataFileTool
             {
                 result.READER = "v3 Pattern or v4 Hash";
 
-                result.DataSetFormatVersion = $"{reader.ReadInt32()}.{reader.ReadInt32()}.{reader.ReadInt32()}.{reader.ReadInt32()}";
+                int vMajor = reader.ReadInt32();
+                int vMinor = reader.ReadInt32();
+                result.DataSetFormatVersion = $"{vMajor}.{vMinor}.{reader.ReadInt32()}.{reader.ReadInt32()}";                
 
                 var guidBytes = reader.ReadBytes(16);
                 result.ExportTagGuid = new Guid(guidBytes);
-                guidBytes = reader.ReadBytes(16);
-                result.DataSetGuid = new Guid(guidBytes);
+                if (vMajor > 3 || (vMajor == 3 && vMinor > 1))
+                {
+                    guidBytes = reader.ReadBytes(16);
+                    result.DataSetGuid = new Guid(guidBytes);
+                }
 
                 result.CopyrightNotice = new DataSetString() { Offset = reader.ReadInt32() };
                 result.Age = reader.ReadInt16();
@@ -71,7 +76,7 @@ namespace DataFileTool
                 result.PublishDate = ReadDate(reader);
                 result.NextExportDate = ReadDate(reader);
 
-                if (result.DataSetFormatVersion.StartsWith("3"))
+                if (vMajor == 3)
                 {
                     result.DeviceCombinations = reader.ReadInt32();
                     result.MaxUserAgentLength = reader.ReadInt16();
@@ -86,20 +91,33 @@ namespace DataFileTool
                     reader.ReadInt32(); // json buffer length
                     reader.ReadInt32(); // xml buffer length
                     reader.ReadInt32(); // max signatures closest
-                    reader.ReadInt32(); // max rank
+                    if (vMinor > 1)
+                    {
+                        reader.ReadInt32(); // max rank
+                    }
                 }
 
                 var stringsStart = reader.ReadUInt32(); // strings start pos
                 reader.ReadUInt32(); // strings byte length
                 result.TotalStringValues = reader.ReadUInt32();
 
-                for (int i = 0; i < (result.DataSetFormatVersion.StartsWith("3") ? 36 : 24); i++)
+                var totalInts = 24;
+                if (vMajor == 3 && vMinor == 1)
+                {
+                    totalInts = 30;
+                } 
+                else if (vMajor == 3 && vMinor == 2)
+                {
+                    totalInts = 36;
+                }
+                
+                for (int i = 0; i < totalInts; i++)
                 {
                     reader.ReadUInt32(); // start pos, byte length and item count for all other lists.
                                             // components, maps, properties, values, profiles
                                             // THEN
                                             // V4 = root nodes, nodes, profile offsets
-                                            // V3 = signatures, signature node offsets
+                                            // V3 = (signatures, signature node offsets)[3.2 only]
                                             //   node ranked signature indexes, ranked signature indexes, 
                                             //   nodes, root nodes, profile offsets
                 }
@@ -153,8 +171,8 @@ namespace DataFileTool
                 result.DataSetName = new DataSetString() { Offset = reader.ReadInt32() };
 
                 var guidBytes = reader.ReadBytes(16);
-                result.ExportTagGuid = new Guid(guidBytes);
-                result.DataSetGuid = Guid.Empty;
+                result.DataSetGuid = new Guid(guidBytes);
+                result.ExportTagGuid = Guid.Empty;
 
                 result.PublishDate = ReadDate(reader);
                 result.NextExportDate = ReadDate(reader);
