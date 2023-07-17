@@ -13,6 +13,7 @@
  * defined by the Mozilla Public License, v. 2.0.
  ********************************************************************** */
 
+using DataFileHeader;
 using System;
 using System.Collections.Generic;
 using System.IO;
