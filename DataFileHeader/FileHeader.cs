@@ -41,6 +41,26 @@ namespace DataFileHeader
 
         public uint TotalStringValues { get; set; }
 
+        public static FileHeader FromMemory(byte[] data)
+        {
+            FileHeader result = null;
+            using (var reader = new BinaryReader(new MemoryStream(data)))
+            {
+                result = ReadV3PatternV4Hash(reader);
+
+            }
+            if (result == null)
+            {
+                using (var reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    result = ReadV3Hash(reader);
+                }
+            }
+
+            return result;
+
+        }
+
         public static FileHeader FromFile(string path)
         {
             FileHeader result = null;
